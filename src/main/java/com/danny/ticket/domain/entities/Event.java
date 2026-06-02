@@ -28,10 +28,10 @@ public class Event {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "start", nullable = false)
+    @Column(name = "\"start\"", nullable = false)
     private LocalDateTime start;
 
-    @Column(name = "end", nullable = false)
+    @Column(name = "\"end\"", nullable = false)
     private LocalDateTime end;
 
     @Column(name = "venue", nullable = false)
@@ -45,7 +45,8 @@ public class Event {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private EventStatusEnum status;
+    @Builder.Default
+    private EventStatusEnum status = EventStatusEnum.DRAFT;
 
     //One organizer can host multiple events
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,6 +1,9 @@
 package com.danny.ticket.controllers;
 
 import com.danny.ticket.domain.dtos.ErrorDTO;
+import com.danny.ticket.exceptions.EventNotFoundException;
+import com.danny.ticket.exceptions.EventUpdateException;
+import com.danny.ticket.exceptions.TicketTypeNotFoundException;
 import com.danny.ticket.exceptions.UserNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,33 @@ import java.util.List;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    //We are only going to use this exception when the user has done something wrong
+    @ExceptionHandler(EventUpdateException.class)
+    public ResponseEntity<ErrorDTO> handleEventUpdateException(EventUpdateException e){
+        log.error("Caught EventUpdateException", e);
+        ErrorDTO errorDTO = new ErrorDTO();
+        errorDTO.setError("unable to update the event");
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TicketTypeNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleTicketTypeUpdateException(TicketTypeNotFoundException e){
+        log.error("Caught TicketTypeNotFoundException", e);
+        ErrorDTO errorDTO = new ErrorDTO();
+        errorDTO.setError("TicketTypeNotFound not found");
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(EventNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleEventNotFoundException(EventNotFoundException e){
+        log.error("Caught EventNotFoundException", e);
+        ErrorDTO errorDTO = new ErrorDTO();
+
+        errorDTO.setError("Event not found");
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorDTO> handleUserNotFoundException(UserNotFoundException e){

@@ -3,6 +3,7 @@ package com.danny.ticket.controllers;
 import com.danny.ticket.domain.CreateEventRequest;
 import com.danny.ticket.domain.dtos.CreateEventRequestDTO;
 import com.danny.ticket.domain.dtos.CreateEventResponseDTO;
+import com.danny.ticket.domain.dtos.GetEventDetailsResponseDTO;
 import com.danny.ticket.domain.dtos.ListEventResponseDTO;
 import com.danny.ticket.domain.entities.Event;
 import com.danny.ticket.mappers.EventMapper;
@@ -51,6 +52,17 @@ public class EventController {
         );
     }
 
+    @GetMapping(path = "/{eventId}")
+    public ResponseEntity<GetEventDetailsResponseDTO> getEvent(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID eventId
+    ){
+        UUID userId = parseUserID(jwt);
+        eventService.getEventForOrganizer(userId, eventId)
+                .map(eventMapper::toGetEventDetailsResponseDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build())
+    }
     private UUID parseUserID(Jwt jwt){
         return UUID.fromString(jwt.getSubject());
     }

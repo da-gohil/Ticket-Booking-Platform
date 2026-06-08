@@ -1,6 +1,7 @@
 package com.danny.ticket.services;
 
 import com.danny.ticket.domain.CreateEventRequest;
+import com.danny.ticket.domain.UpdateEventRequest;
 import com.danny.ticket.domain.entities.Event;
 
 import org.springframework.data.domain.Page;
@@ -17,4 +18,5 @@ public interface EventService {
 
     Optional<Event> getEventForOrganizer(UUID organizerId, UUID id);
 
+    Event updateEventForOrganizer(UUID organizerId, UUID id, UpdateEventRequest event);
 }

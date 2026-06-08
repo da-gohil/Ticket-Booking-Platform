@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -58,10 +57,10 @@ public class EventController {
             @PathVariable UUID eventId
     ){
         UUID userId = parseUserID(jwt);
-        eventService.getEventForOrganizer(userId, eventId)
+        return eventService.getEventForOrganizer(userId, eventId)
                 .map(eventMapper::toGetEventDetailsResponseDTO)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build())
+                .orElse(ResponseEntity.notFound().build());
     }
     private UUID parseUserID(Jwt jwt){
         return UUID.fromString(jwt.getSubject());

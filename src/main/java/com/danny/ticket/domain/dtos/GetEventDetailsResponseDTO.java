@@ -32,7 +32,7 @@ public class GetEventDetailsResponseDTO {
 
     private EventStatusEnum status;
 
-    private List<GetEventDetailsResponseDTO> ticketTypes = new ArrayList<>();
+    private List<GetEventTicketTypesResponseDTO> ticketTypes = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

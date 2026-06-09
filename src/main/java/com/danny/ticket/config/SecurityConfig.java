@@ -1,9 +1,9 @@
 package com.danny.ticket.config;
 
 import com.danny.ticket.filters.UserProvisionFilter;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.server.resource.web.authentication.Be
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class Security {
+public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(
@@ -19,7 +19,10 @@ public class Security {
             UserProvisionFilter userProvisionFilter) throws Exception{
         http
                 .authorizeHttpRequests(authorize ->
-                        authorize.anyRequest().authenticated())
+                        authorize
+                                .requestMatchers(HttpMethod.GET, "/api/v1/published-events").permitAll()
+                                //Catch all rule
+                                .anyRequest().authenticated())
                 .csrf(csrf ->  csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

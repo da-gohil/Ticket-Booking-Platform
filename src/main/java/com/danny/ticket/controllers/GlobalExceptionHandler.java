@@ -1,10 +1,7 @@
 package com.danny.ticket.controllers;
 
 import com.danny.ticket.domain.dtos.ErrorDTO;
-import com.danny.ticket.exceptions.EventNotFoundException;
-import com.danny.ticket.exceptions.EventUpdateException;
-import com.danny.ticket.exceptions.TicketTypeNotFoundException;
-import com.danny.ticket.exceptions.UserNotFoundException;
+import com.danny.ticket.exceptions.*;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,6 +17,14 @@ import java.util.List;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    //We are only going to use this exception when the user has done something wrong
+    @ExceptionHandler(QrCodeGenerationException.class)
+    public ResponseEntity<ErrorDTO> handleQrCodeGenerationException(QrCodeGenerationException e){
+        log.error("Caught QrCodeGenerationException", e);
+        ErrorDTO errorDTO = new ErrorDTO();
+        errorDTO.setError("unable to generate the QR code");
+        return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     //We are only going to use this exception when the user has done something wrong
     @ExceptionHandler(EventUpdateException.class)
     public ResponseEntity<ErrorDTO> handleEventUpdateException(EventUpdateException e){

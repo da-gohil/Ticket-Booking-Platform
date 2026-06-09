@@ -1,10 +1,8 @@
 package com.danny.ticket.controllers;
 
 import com.danny.ticket.domain.CreateEventRequest;
-import com.danny.ticket.domain.dtos.CreateEventRequestDTO;
-import com.danny.ticket.domain.dtos.CreateEventResponseDTO;
-import com.danny.ticket.domain.dtos.GetEventDetailsResponseDTO;
-import com.danny.ticket.domain.dtos.ListEventResponseDTO;
+import com.danny.ticket.domain.UpdateEventRequest;
+import com.danny.ticket.domain.dtos.*;
 import com.danny.ticket.domain.entities.Event;
 import com.danny.ticket.mappers.EventMapper;
 import com.danny.ticket.services.EventService;
@@ -38,6 +36,31 @@ public class EventController {
 
         CreateEventResponseDTO createEventResponseDTO = eventMapper.toDto(createdEvent);
         return new ResponseEntity<>(createEventResponseDTO, HttpStatus.CREATED);
+    }
+
+    @PutMapping(path="/{eventId}")
+    public ResponseEntity<UpdateEventResponseDTO> updateEvent(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID eventId,
+            @Valid @RequestBody UpdateEventRequestDTO updateEventRequestDTO){
+        UpdateEventRequest updateEventRequest = eventMapper.fromDto(updateEventRequestDTO);
+        UUID userId = parseUserID(jwt);
+        Event createdEvent = eventService.updateEventForOrganizer(
+                userId, eventId, updateEventRequest
+        );
+
+        UpdateEventResponseDTO updateEventResponseDTO = eventMapper.toUpdateEventResponseDTO(createdEvent);
+        return ResponseEntity.ok(updateEventResponseDTO);
+    }
+
+    @DeleteMapping("/{event_id}")
+    public ResponseEntity<Void> deleteEvent(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID eventId
+    ){
+        UUID userId = parseUserID(jwt);
+        eventService.deleteEventForOrganizer(userId, eventId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping

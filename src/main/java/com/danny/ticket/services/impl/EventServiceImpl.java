@@ -13,6 +13,7 @@ import com.danny.ticket.exceptions.UserNotFoundException;
 import com.danny.ticket.repositories.EventRepository;
 import com.danny.ticket.repositories.UserRepository;
 import com.danny.ticket.services.EventService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -134,5 +135,11 @@ public class EventServiceImpl implements EventService {
             }
         }
         return eventRepository.save(existingEvent);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEventForOrganizer(UUID organizerId, UUID id) {
+        getEventForOrganizer(organizerId, id).ifPresent(eventRepository::delete);
     }
 }

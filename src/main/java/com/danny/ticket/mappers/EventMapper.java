@@ -2,6 +2,8 @@ package com.danny.ticket.mappers;
 
 import com.danny.ticket.domain.CreateEventRequest;
 import com.danny.ticket.domain.CreateTicketTypeRequest;
+import com.danny.ticket.domain.UpdateEventRequest;
+import com.danny.ticket.domain.UpdateTicketTypeRequest;
 import com.danny.ticket.domain.dtos.*;
 import com.danny.ticket.domain.entities.Event;
 import com.danny.ticket.domain.entities.TicketType;
@@ -24,4 +26,13 @@ public interface EventMapper {
     GetEventTicketTypesResponseDTO toGetEventTicketTypesResponseDTO(TicketType ticketType);
 
     GetEventDetailsResponseDTO toGetEventDetailsResponseDTO(Event event);
+
+    UpdateTicketTypeRequest fromDto(UpdateTicketTypeRequestDTO dto);
+
+    UpdateEventRequest fromDto(UpdateEventRequestDTO dto);
+
+    UpdateTicketTypeResponseDTO toUpdateTicketTypeResponseDto(TicketType ticketType);
+
+    UpdateEventResponseDTO toUpdateEventResponseDTO(Event event);
+
 }

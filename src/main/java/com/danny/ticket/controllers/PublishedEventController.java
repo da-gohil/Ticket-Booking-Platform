@@ -1,6 +1,7 @@
 package com.danny.ticket.controllers;
 
 import com.danny.ticket.domain.dtos.ListPublishedEventResponseDTO;
+import com.danny.ticket.domain.entities.Event;
 import com.danny.ticket.mappers.EventMapper;
 import com.danny.ticket.services.EventService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,9 +22,19 @@ public class PublishedEventController {
     private final EventMapper eventMapper;
 
     @GetMapping
-    public ResponseEntity<Page<ListPublishedEventResponseDTO>> listPublishedEvents(Pageable pageable){
-        return ResponseEntity.ok(eventService.listPublishedEvents(pageable)
-                .map(eventMapper::toListPublishedEventResponseDTO)
+    public ResponseEntity<Page<ListPublishedEventResponseDTO>> listPublishedEvents(
+            @RequestParam(required = false) String q,
+            Pageable pageable){
+
+        //When the user specifies a query we can either search or list all the events
+        Page<Event> events;
+        if(null != q && !q.trim().isEmpty()){
+            events = eventService.searchPublishedEvents(q, pageable);
+        }else {
+            events = eventService.listPublishedEvents(pageable);
+        }
+        return ResponseEntity.ok(
+                events.map(eventMapper::toListPublishedEventResponseDTO)
         );
     }
 }

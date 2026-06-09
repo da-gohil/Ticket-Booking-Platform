@@ -35,4 +35,5 @@ public interface EventMapper {
 
     UpdateEventResponseDTO toUpdateEventResponseDTO(Event event);
 
+    ListPublishedEventResponseDTO toListPublishedEventResponseDTO(Event event);
 }

@@ -4,6 +4,7 @@ import com.danny.ticket.domain.CreateEventRequest;
 import com.danny.ticket.domain.UpdateEventRequest;
 import com.danny.ticket.domain.UpdateTicketTypeRequest;
 import com.danny.ticket.domain.entities.Event;
+import com.danny.ticket.domain.entities.EventStatusEnum;
 import com.danny.ticket.domain.entities.TicketType;
 import com.danny.ticket.domain.entities.User;
 import com.danny.ticket.exceptions.EventUpdateException;
@@ -141,5 +142,15 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void deleteEventForOrganizer(UUID organizerId, UUID id) {
         getEventForOrganizer(organizerId, id).ifPresent(eventRepository::delete);
+    }
+
+    @Override
+    public Page<Event> listPublishedEvents(Pageable pageable) {
+        return eventRepository.findByStatus(EventStatusEnum.PUBLISHED, pageable);
+    }
+
+    @Override
+    public Page<Event> searchPublishedEvents(String query, Pageable pageable) {
+
     }
 }

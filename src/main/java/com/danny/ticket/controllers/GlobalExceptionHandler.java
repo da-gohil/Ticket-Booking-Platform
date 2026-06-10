@@ -17,6 +17,22 @@ import java.util.List;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(TicketSoldOutException.class)
+    public ResponseEntity<ErrorDTO> handleTicketSoldOutException(TicketSoldOutException e){
+        log.error("Caught TicketSoldOutException", e);
+        ErrorDTO errorDTO = new ErrorDTO();
+        errorDTO.setError("Tickets are sold out for this ticket type");
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(QrCodeNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleQrCodeNotFoundException(QrCodeNotFoundException e){
+        log.error("Caught QrCodeNotFoundException", e);
+        ErrorDTO errorDTO = new ErrorDTO();
+        errorDTO.setError("unable to find  the QR code");
+        return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     //We are only going to use this exception when the user has done something wrong
     @ExceptionHandler(QrCodeGenerationException.class)
     public ResponseEntity<ErrorDTO> handleQrCodeGenerationException(QrCodeGenerationException e){

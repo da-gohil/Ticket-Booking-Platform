@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateEventResponseDTO {
 
-    private UUID uuid;
+    private UUID id;
     private String name;
     private LocalDateTime start;
     private LocalDateTime end;

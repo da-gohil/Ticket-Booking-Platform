@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -29,8 +30,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDTO> handleQrCodeNotFoundException(QrCodeNotFoundException e){
         log.error("Caught QrCodeNotFoundException", e);
         ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError("unable to find  the QR code");
-        return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        errorDTO.setError("QR code not found");
+        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
     }
 
     //We are only going to use this exception when the user has done something wrong
@@ -54,8 +55,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDTO> handleTicketTypeUpdateException(TicketTypeNotFoundException e){
         log.error("Caught TicketTypeNotFoundException", e);
         ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError("TicketTypeNotFound not found");
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+        errorDTO.setError("Ticket type not found");
+        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
     }
 
 
@@ -65,7 +66,7 @@ public class GlobalExceptionHandler {
         ErrorDTO errorDTO = new ErrorDTO();
 
         errorDTO.setError("Event not found");
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -74,7 +75,7 @@ public class GlobalExceptionHandler {
         ErrorDTO errorDTO = new ErrorDTO();
 
         errorDTO.setError("User not found");
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -106,6 +107,16 @@ public class GlobalExceptionHandler {
                 ).orElse("Constraint violation occurred");
 
         errorDTO.setError(errorMessage);
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorDTO> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException e
+    ){
+        log.error("Caught MethodArgumentTypeMismatchException", e);
+        ErrorDTO errorDTO = new ErrorDTO();
+        errorDTO.setError(String.format("'%s' has an invalid value", e.getName()));
         return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
 

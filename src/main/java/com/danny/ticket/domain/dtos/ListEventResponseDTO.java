@@ -31,6 +31,6 @@ public class ListEventResponseDTO {
 
     private EventStatusEnum status;
 
-    private List<ListEventTicketTypeResponseDTO> ticketType = new ArrayList();
+    private List<ListEventTicketTypeResponseDTO> ticketTypes = new ArrayList<>();
 
 }

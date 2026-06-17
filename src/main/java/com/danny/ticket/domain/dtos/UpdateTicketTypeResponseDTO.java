@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateTicketTypeResponseDTO {
 
-    private UUID uuid;
+    private UUID id;
     private String name;
     private Double price;
     private String description;

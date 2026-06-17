@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CreateEventResponseDTO {
 
-    private UUID uuid;
+    private UUID id;
     private String name;
     private LocalDateTime start;
     private LocalDateTime end;

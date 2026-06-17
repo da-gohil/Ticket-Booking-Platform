@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CreateTicketTypeResponseDTO {
 
-    private UUID uuid;
+    private UUID id;
     private String name;
     private Double price;
 

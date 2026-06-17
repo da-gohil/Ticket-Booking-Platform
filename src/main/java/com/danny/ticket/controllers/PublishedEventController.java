@@ -38,7 +38,7 @@ public class PublishedEventController {
         );
     }
 
-    @GetMapping(path="{/eventId}")
+    @GetMapping(path="/{eventId}")
     public ResponseEntity<GetPublishedEventDetailsResponseDTO> getPublishedEventDetails(
             @PathVariable UUID eventId
     ){

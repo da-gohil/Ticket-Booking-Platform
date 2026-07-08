@@ -6,7 +6,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -42,15 +41,16 @@ public class QrCode {
     @Column(name="updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    // Identity-based equality (see Event).
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        QrCode qrCode = (QrCode) o;
-        return Objects.equals(id, qrCode.id) && status == qrCode.status && Objects.equals(value, qrCode.value) && Objects.equals(createdAt, qrCode.createdAt) && Objects.equals(updatedAt, qrCode.updatedAt);
+        if (this == o) return true;
+        if (!(o instanceof QrCode qrCode)) return false;
+        return id != null && id.equals(qrCode.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, status, value, createdAt, updatedAt);
+        return getClass().hashCode();
     }
 }

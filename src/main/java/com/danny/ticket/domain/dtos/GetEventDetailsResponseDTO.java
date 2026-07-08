@@ -4,7 +4,6 @@ import com.danny.ticket.domain.entities.EventStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SecondaryRow;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

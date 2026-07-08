@@ -1,6 +1,6 @@
 package com.danny.ticket.controllers;
 
-import com.danny.ticket.services.TicketTypeService;
+import com.danny.ticket.services.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +20,14 @@ import static com.danny.ticket.util.JwtUtil.parseUserId;
 @RequiredArgsConstructor
 public class TicketTypeController {
 
-    private final TicketTypeService ticketTypeService;
+    private final TicketService ticketService;
 
     @PostMapping(path = "/{ticketTypeId}/tickets")
     public ResponseEntity<Void> purchaseTicket(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID ticketTypeId
     ){
-        ticketTypeService.purchaseTicket(parseUserId(jwt), ticketTypeId);
+        ticketService.purchaseTicket(parseUserId(jwt), ticketTypeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

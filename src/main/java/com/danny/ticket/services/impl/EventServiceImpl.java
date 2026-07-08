@@ -14,12 +14,13 @@ import com.danny.ticket.exceptions.UserNotFoundException;
 import com.danny.ticket.repositories.EventRepository;
 import com.danny.ticket.repositories.UserRepository;
 import com.danny.ticket.services.EventService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
     @Override
+    @Transactional
     public Event createEvent(UUID organizerId, CreateEventRequest event) {
         User organizer = userRepository.findById(organizerId)
                 .orElseThrow(() -> new UserNotFoundException(
@@ -40,16 +42,14 @@ public class EventServiceImpl implements EventService {
 
         Event eventToCreate = new Event();
 
-        List<TicketType> ticketTypesToCreate = event.getTicketTypes().stream().map(
-                ticketType -> {
-                    TicketType ticketTypeToCreate = new TicketType();
-                    ticketTypeToCreate.setName(ticketType.getName());
-                    ticketTypeToCreate.setPrice(ticketType.getPrice());
-                    ticketTypeToCreate.setDescription(ticketType.getDescription());
-                    ticketTypeToCreate.setTotalAvailable(ticketType.getTotalAvailable());
-                    ticketTypeToCreate.setEvent(eventToCreate);
-                    return ticketTypeToCreate;
-                }).toList();
+        List<TicketType> ticketTypesToCreate = event.getTicketTypes().stream()
+                .map(ticketType -> newTicketType(
+                        ticketType.getName(),
+                        ticketType.getPrice(),
+                        ticketType.getDescription(),
+                        ticketType.getTotalAvailable(),
+                        eventToCreate))
+                .toList();
 
         eventToCreate.setName(event.getName());
         eventToCreate.setStart(event.getStart());
@@ -65,8 +65,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Event> listEventForOrganizer(UUID organizerId, Pageable pageable) {
-        return eventRepository.findByOrganizerId(organizerId, pageable);
+        Page<Event> events = eventRepository.findByOrganizerId(organizerId, pageable);
+        // Initialise ticketTypes inside this transaction so the controller can map
+        // them after the session closes (open-in-view is disabled). @BatchSize
+        // collapses this into a single batched query, not N lazy loads.
+        events.forEach(event -> event.getTicketTypes().size());
+        return events;
     }
 
     @Override
@@ -75,6 +81,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public Event updateEventForOrganizer(UUID organizerId, UUID id, UpdateEventRequest event) {
         if(null == event.getId()){
             throw new EventUpdateException("Event ID cannot be null");
@@ -115,13 +122,12 @@ public class EventServiceImpl implements EventService {
         for(UpdateTicketTypeRequest ticketType : event.getTicketTypes()){
             if(null == ticketType.getId()){
                 //Create
-                TicketType ticketTypeToCreate = new TicketType();
-                ticketTypeToCreate.setName(ticketType.getName());
-                ticketTypeToCreate.setPrice(ticketType.getPrice());
-                ticketTypeToCreate.setDescription(ticketType.getDescription());
-                ticketTypeToCreate.setTotalAvailable(ticketType.getTotalAvailable());
-                ticketTypeToCreate.setEvent(existingEvent);
-                existingEvent.getTicketTypes().add(ticketTypeToCreate);
+                existingEvent.getTicketTypes().add(newTicketType(
+                        ticketType.getName(),
+                        ticketType.getPrice(),
+                        ticketType.getDescription(),
+                        ticketType.getTotalAvailable(),
+                        existingEvent));
             }else if (existingTicketTypesIndex.containsKey(ticketType.getId())) {
                 //Update
                 TicketType existingTicketType = existingTicketTypesIndex.get(ticketType.getId());
@@ -157,5 +163,18 @@ public class EventServiceImpl implements EventService {
     @Override
     public Optional<Event> getPublishedEvent(UUID id) {
         return eventRepository.findByIdAndStatus(id, EventStatusEnum.PUBLISHED);
+    }
+
+    // Single place that builds a TicketType from request fields, shared by the
+    // create-event and update-event (new ticket type) paths.
+    private TicketType newTicketType(String name, BigDecimal price, String description,
+                                     Integer totalAvailable, Event event) {
+        TicketType ticketType = new TicketType();
+        ticketType.setName(name);
+        ticketType.setPrice(price);
+        ticketType.setDescription(description);
+        ticketType.setTotalAvailable(totalAvailable);
+        ticketType.setEvent(event);
+        return ticketType;
     }
 }

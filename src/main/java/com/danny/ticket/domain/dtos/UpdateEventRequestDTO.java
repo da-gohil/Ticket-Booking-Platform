@@ -24,7 +24,10 @@ public class UpdateEventRequestDTO {
     @NotBlank(message = "Event name is required")
     private String name;
 
+    @NotNull(message = "Event start is required")
     private LocalDateTime start;
+
+    @NotNull(message = "Event end is required")
     private LocalDateTime end;
 
     @NotBlank(message = "venue information is required")

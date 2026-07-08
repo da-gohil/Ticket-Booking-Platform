@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.lang.classfile.constantpool.DoubleEntry;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -14,7 +14,7 @@ public class ListEventTicketTypeResponseDTO {
 
     private UUID id;
     private String name;
-    private Double price;
+    private BigDecimal price;
     private String description;
     private Integer totalAvailable;
 

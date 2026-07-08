@@ -2,7 +2,6 @@ package com.danny.ticket.domain.dtos;
 
 import com.danny.ticket.domain.CreateTicketTypeRequest;
 import com.danny.ticket.domain.entities.EventStatusEnum;
-import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -23,7 +22,10 @@ public class CreateEventRequestDTO {
     @NotBlank(message = "Event name is required")
     private String name;
 
+    @NotNull(message = "Event start is required")
     private LocalDateTime start;
+
+    @NotNull(message = "Event end is required")
     private LocalDateTime end;
 
     @NotBlank(message = "venue information is required")

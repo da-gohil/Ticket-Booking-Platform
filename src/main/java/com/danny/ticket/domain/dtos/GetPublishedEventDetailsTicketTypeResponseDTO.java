@@ -1,5 +1,6 @@
 package com.danny.ticket.domain.dtos;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,7 @@ public class GetPublishedEventDetailsTicketTypeResponseDTO {
 
     private UUID id;
     private String name;
-    private Double price;
+    private BigDecimal price;
     private String description;
 
 }

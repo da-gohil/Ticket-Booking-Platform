@@ -20,112 +20,93 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TicketSoldOutException.class)
     public ResponseEntity<ErrorDTO> handleTicketSoldOutException(TicketSoldOutException e){
-        log.error("Caught TicketSoldOutException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError("Tickets are sold out for this ticket type");
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+        return clientError(e, HttpStatus.BAD_REQUEST, "Tickets are sold out for this ticket type");
     }
 
     @ExceptionHandler(QrCodeNotFoundException.class)
     public ResponseEntity<ErrorDTO> handleQrCodeNotFoundException(QrCodeNotFoundException e){
-        log.error("Caught QrCodeNotFoundException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError("QR code not found");
-        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
+        return clientError(e, HttpStatus.NOT_FOUND, "QR code not found");
     }
 
-    //We are only going to use this exception when the user has done something wrong
     @ExceptionHandler(QrCodeGenerationException.class)
     public ResponseEntity<ErrorDTO> handleQrCodeGenerationException(QrCodeGenerationException e){
-        log.error("Caught QrCodeGenerationException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError("unable to generate the QR code");
-        return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        return serverError(e, "unable to generate the QR code");
     }
-    //We are only going to use this exception when the user has done something wrong
+
     @ExceptionHandler(EventUpdateException.class)
     public ResponseEntity<ErrorDTO> handleEventUpdateException(EventUpdateException e){
-        log.error("Caught EventUpdateException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError("unable to update the event");
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+        return clientError(e, HttpStatus.BAD_REQUEST, "unable to update the event");
     }
 
     @ExceptionHandler(TicketTypeNotFoundException.class)
     public ResponseEntity<ErrorDTO> handleTicketTypeUpdateException(TicketTypeNotFoundException e){
-        log.error("Caught TicketTypeNotFoundException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError("Ticket type not found");
-        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
+        return clientError(e, HttpStatus.NOT_FOUND, "Ticket type not found");
     }
-
 
     @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<ErrorDTO> handleEventNotFoundException(EventNotFoundException e){
-        log.error("Caught EventNotFoundException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-
-        errorDTO.setError("Event not found");
-        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
+        return clientError(e, HttpStatus.NOT_FOUND, "Event not found");
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorDTO> handleUserNotFoundException(UserNotFoundException e){
-        log.error("Caught UserNotFoundException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-
-        errorDTO.setError("User not found");
-        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
+        return clientError(e, HttpStatus.NOT_FOUND, "User not found");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDTO> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e
     ){
-        log.error("Caught MethodArgumentNotValidException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-
         BindingResult bindingResult = e.getBindingResult();
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
         String errorMessage = fieldErrors.stream()
                                 .findFirst()
                                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                                 .orElse("Validation error occurred");
-        errorDTO.setError(errorMessage);
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+        return clientError(e, HttpStatus.BAD_REQUEST, errorMessage);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorDTO> handleConstraintViolation(
             ConstraintViolationException e
     ){
-        log.error("Caught ConstraintViolationException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
         String errorMessage = e.getConstraintViolations()
                 .stream()
                         .findFirst().map(violation -> violation.getPropertyPath() + ": " + violation.getMessage()
                 ).orElse("Constraint violation occurred");
-
-        errorDTO.setError(errorMessage);
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+        return clientError(e, HttpStatus.BAD_REQUEST, errorMessage);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorDTO> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException e
     ){
-        log.error("Caught MethodArgumentTypeMismatchException", e);
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError(String.format("'%s' has an invalid value", e.getName()));
-        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+        return clientError(e, HttpStatus.BAD_REQUEST,
+                String.format("'%s' has an invalid value", e.getName()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDTO> handleException(Exception e){
-        log.error("Caught Exception", e);
+        return serverError(e, "An unknown error occurred");
+    }
+
+    // Expected 4xx conditions: log at WARN without the full stack trace so real
+    // server faults stay visible in the logs.
+    private ResponseEntity<ErrorDTO> clientError(Exception e, HttpStatus status, String message){
+        log.warn("{} -> {}: {}", e.getClass().getSimpleName(), status.value(), message);
+        return body(status, message);
+    }
+
+    // Unexpected server faults: log at ERROR with the stack trace.
+    private ResponseEntity<ErrorDTO> serverError(Exception e, String message){
+        log.error("{} -> 500: {}", e.getClass().getSimpleName(), message, e);
+        return body(HttpStatus.INTERNAL_SERVER_ERROR, message);
+    }
+
+    private ResponseEntity<ErrorDTO> body(HttpStatus status, String message){
         ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setError("An unknown error occurred");
-        return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        errorDTO.setError(message);
+        return new ResponseEntity<>(errorDTO, status);
     }
 
 }

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -21,7 +22,7 @@ public class UpdateTicketTypeRequestDTO {
 
     @NotNull(message = "Price is required")
     @PositiveOrZero(message = "Price must be zero or greater")
-    private Double price;
+    private BigDecimal price;
     private String description;
     private Integer totalAvailable;
 }
